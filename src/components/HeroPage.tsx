@@ -13,8 +13,8 @@ export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
       {/* NAV */}
       <nav className="sticky top-0 z-50 flex items-center justify-between px-8 py-4 border-b border-border bg-bg/90 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#1a1a2e] border border-[#3d3d7a] flex items-center justify-center text-base">🐌</div>
-          <span className="text-sm font-medium tracking-tight text-white">SnailCam</span>
+          <div className="w-8 h-8 rounded-lg bg-[#1a1a2e] border border-[#3d3d7a] flex items-center justify-center text-base">🥚</div>
+          <span className="text-sm font-medium tracking-tight text-white">SnailEggs</span>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -46,13 +46,13 @@ export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
 
         {/* Headline */}
         <h1 className="relative text-5xl md:text-6xl font-light leading-[1.1] text-[#f5f5f5] max-w-3xl mb-5 tracking-tight">
-          Detect snails before they{' '}
-          <span className="text-accent-light italic font-normal">damage</span>{' '}
-          your crops
+          Detect snail eggs before they{' '}
+          <span className="text-accent-light italic font-normal">hatch</span>{' '}
+          and damage your crops
         </h1>
         <p className="relative text-lg text-[#666] max-w-lg leading-relaxed mb-10">
-          AI-powered camera surveillance that identifies snail activity in real time.
-          Get instant alerts, log captures, and protect your plants automatically.
+          AI-powered camera surveillance that identifies snail egg clusters in real time.
+          Get instant alerts, log captures, and stop infestations before they start.
         </p>
 
         {/* CTAs */}
@@ -144,13 +144,13 @@ export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
                 Catches what the eye misses
               </h2>
               <p className="text-[#666] leading-relaxed mb-6">
-                SnailCam's vision model is trained to spot snail eggs, trails, and adults even in low-light or dense foliage conditions. The image above was captured automatically at night — no human present.
+                SnailEggs' vision model is trained to spot egg clusters even in low-light or dense foliage conditions. The image above was captured automatically at night — no human present.
               </p>
               <div className="space-y-3">
                 {[
                   { icon: '🥚', title: 'Egg cluster detection', desc: 'Identifies egg masses before they hatch' },
-                  { icon: '🐌', title: 'Adult & juvenile tracking', desc: 'Tracks movement across frames' },
-                  { icon: '〰️', title: 'Slime trail analysis', desc: 'Detects trails as early-warning signals' },
+                  { icon: '🥚', title: 'Early-stage identification', desc: 'Spots newly-laid clutches invisible to the naked eye' },
+                  { icon: '🔔', title: 'Instant hatch alerts', desc: 'Notified the moment a cluster is detected' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3 p-3 bg-card border border-border rounded-xl">
                     <span className="text-base mt-0.5">{item.icon}</span>
@@ -170,11 +170,11 @@ export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
       <section className="py-20 px-8 bg-bg">
         <div className="max-w-5xl mx-auto">
           <div className="text-xs text-[#444] uppercase tracking-widest text-center mb-2 font-mono">Capabilities</div>
-          <h2 className="text-3xl font-light text-center text-[#f0f0f0] mb-10">Everything you need to stop snails</h2>
+          <h2 className="text-3xl font-light text-center text-[#f0f0f0] mb-10">Everything you need to stop snail eggs</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: '📷', title: 'Multi-camera feeds', desc: 'Monitor up to 16 streams simultaneously' },
-              { icon: '🔍', title: 'AI snail detection', desc: 'Trained on 50k+ snail images' },
+              { icon: '🥚', title: 'AI egg detection', desc: 'Trained on 50k+ egg cluster images' },
               { icon: '🔔', title: 'Instant alerts', desc: 'Push, SMS, and email with snapshot' },
               { icon: '📋', title: 'Detection logs', desc: 'Full history with confidence scores' },
             ].map((f, i) => (
@@ -193,8 +193,8 @@ export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
       {/* FOOTER */}
       <footer className="border-t border-border px-8 py-6 flex items-center justify-between text-xs text-[#444]">
         <div className="flex items-center gap-2">
-          <span>🐌</span>
-          <span>SnailCam © 2025</span>
+          <span>🥚</span>
+          <span>SnailEggs © 2025</span>
         </div>
         <div className="flex gap-6">
           <span className="hover:text-[#888] cursor-pointer transition-colors">Privacy</span>

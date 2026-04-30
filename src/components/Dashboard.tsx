@@ -22,15 +22,15 @@ interface LogEntry {
 
 const LOGS: LogEntry[] = [
   { id: 1, timestamp: 'Today 14:32:07', camera: 'Cam-02 · Seedbed', type: 'alert', object: 'Egg cluster detected', confidence: 96, hasCapture: true, isEggImage: true },
-  { id: 2, timestamp: 'Today 13:58:44', camera: 'Cam-01 · Garden A', type: 'detection', object: 'Adult snail × 2', confidence: 97, hasCapture: true },
-  { id: 3, timestamp: 'Today 13:21:15', camera: 'Cam-03 · Greenhouse', type: 'detection', object: 'Juvenile snail × 1', confidence: 82, hasCapture: true },
-  { id: 4, timestamp: 'Today 12:07:33', camera: 'Cam-02 · Seedbed', type: 'warning', object: 'Slime trail pattern', confidence: 74, hasCapture: false },
-  { id: 5, timestamp: 'Today 11:44:09', camera: 'Cam-01 · Garden A', type: 'detection', object: 'Adult snail × 1', confidence: 91, hasCapture: true },
-  { id: 6, timestamp: 'Today 09:15:52', camera: 'Cam-03 · Greenhouse', type: 'system', object: 'Camera calibrated', confidence: null, hasCapture: false },
-  { id: 7, timestamp: 'Yesterday 22:48:30', camera: 'Cam-02 · Seedbed', type: 'alert', object: 'Adult snail × 3', confidence: 96, hasCapture: true },
-  { id: 8, timestamp: 'Yesterday 20:11:05', camera: 'Cam-01 · Garden A', type: 'detection', object: 'Egg cluster', confidence: 88, hasCapture: true, isEggImage: true },
-  { id: 9, timestamp: 'Yesterday 18:33:22', camera: 'Cam-03 · Greenhouse', type: 'warning', object: 'Low light mode', confidence: null, hasCapture: false },
-  { id: 10, timestamp: 'Yesterday 16:05:14', camera: 'Cam-04 · Perimeter', type: 'system', object: 'Cam-04 went offline', confidence: null, hasCapture: false },
+  { id: 2, timestamp: 'Today 11:20:18', camera: 'Cam-01 · Garden A', type: 'detection', object: 'Egg cluster × 1', confidence: 89, hasCapture: true, isEggImage: true },
+  { id: 3, timestamp: 'Today 09:15:52', camera: 'Cam-03 · Greenhouse', type: 'system', object: 'Camera calibrated', confidence: null, hasCapture: false },
+  { id: 4, timestamp: 'Yesterday 20:11:05', camera: 'Cam-01 · Garden A', type: 'detection', object: 'Egg cluster', confidence: 88, hasCapture: true, isEggImage: true },
+  { id: 5, timestamp: 'Yesterday 18:33:22', camera: 'Cam-03 · Greenhouse', type: 'warning', object: 'Low light mode', confidence: null, hasCapture: false },
+  { id: 6, timestamp: 'Yesterday 16:05:14', camera: 'Cam-04 · Perimeter', type: 'system', object: 'Cam-04 went offline', confidence: null, hasCapture: false },
+  { id: 7, timestamp: 'Yesterday 14:47:02', camera: 'Cam-02 · Seedbed', type: 'alert', object: 'Egg cluster detected', confidence: 94, hasCapture: true, isEggImage: true },
+  { id: 8, timestamp: 'Yesterday 10:02:33', camera: 'Cam-01 · Garden A', type: 'detection', object: 'Egg mass × 2', confidence: 91, hasCapture: true, isEggImage: true },
+  { id: 9, timestamp: '2 days ago 22:15:09', camera: 'Cam-03 · Greenhouse', type: 'system', object: 'Motion threshold adjusted', confidence: null, hasCapture: false },
+  { id: 10, timestamp: '2 days ago 08:30:41', camera: 'Cam-02 · Seedbed', type: 'detection', object: 'Egg cluster × 3', confidence: 97, hasCapture: true, isEggImage: true },
 ]
 
 const TYPE_STYLES: Record<LogType, string> = {
@@ -51,7 +51,6 @@ const CAMERAS = [
 
 const NAV_ITEMS = [
   { icon: '⊞', label: 'Dashboard', active: true },
-  { icon: '📷', label: 'Cameras' },
   { icon: '📋', label: 'Logs' },
   { icon: '🔔', label: 'Alerts' },
   { icon: '📊', label: 'Reports' },
@@ -68,8 +67,8 @@ export default function Dashboard({ onBack }: Props) {
       {/* SIDEBAR */}
       <aside className="w-52 bg-[#0d0d0d] border-r border-border flex flex-col gap-1 px-3 py-5 shrink-0">
         <div className="flex items-center gap-2 px-2 pb-4 mb-1 border-b border-border">
-          <div className="w-7 h-7 bg-[#1a1a2e] border border-[#3d3d7a] rounded-lg flex items-center justify-center text-sm">🐌</div>
-          <span className="text-sm font-medium text-white">SnailCam</span>
+          <div className="w-7 h-7 bg-[#1a1a2e] border border-[#3d3d7a] rounded-lg flex items-center justify-center text-sm">🥚</div>
+          <span className="text-sm font-medium text-white">SnailEggs</span>
         </div>
 
         {NAV_ITEMS.map((item) => (
@@ -116,7 +115,7 @@ export default function Dashboard({ onBack }: Props) {
         {/* Metrics */}
         <div className="grid grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Detections today', val: '24', sub: '↑ 6 from yesterday', subColor: 'text-[#4ade80]' },
+            { label: 'Egg detections today', val: '8', sub: '↑ 3 from yesterday', subColor: 'text-[#4ade80]' },
             { label: 'Cameras online', val: '3 / 4', sub: '1 offline', subColor: 'text-[#fbbf24]' },
             { label: 'Avg confidence', val: '91%', sub: '↑ 2% this week', subColor: 'text-[#4ade80]' },
             { label: 'Alerts sent', val: '11', sub: 'Last: 14 min ago', subColor: 'text-[#555]' },
