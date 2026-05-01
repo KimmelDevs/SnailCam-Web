@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import type { AuthTab } from '@/app/page'
+import { supabase } from '../lib/supabaseClient'
 
 interface Props {
   tab: AuthTab
@@ -13,6 +14,63 @@ export default function AuthModal({ tab, onTabChange, onClose, onSuccess }: Prop
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+
+  const clearState = () => {
+    setError(null)
+    setMessage(null)
+  }
+
+  const handleSubmit = async () => {
+    clearState()
+
+    if (!email || !password) {
+      setError('Email and password are required.')
+      return
+    }
+
+    setLoading(true)
+
+    if (tab === 'signup') {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name } },
+      })
+
+      if (signUpError) {
+        setError(signUpError.message)
+        setLoading(false)
+        return
+      }
+
+      setMessage('Account created! Check your email to confirm, then log in.')
+      setLoading(false)
+      return
+    }
+
+    // Login
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (signInError) {
+      setError(signInError.message)
+      setLoading(false)
+      return
+    }
+
+    setLoading(false)
+    onSuccess()
+  }
+
+  const handleTabChange = (t: AuthTab) => {
+    clearState()
+    onTabChange(t)
+  }
 
   return (
     <div
@@ -41,7 +99,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onSuccess }: Prop
           {(['login', 'signup'] as AuthTab[]).map((t) => (
             <button
               key={t}
-              onClick={() => onTabChange(t)}
+              onClick={() => handleTabChange(t)}
               className={`flex-1 py-2 rounded-md text-sm transition-all ${
                 tab === t
                   ? 'bg-[#1e1e3a] text-accent-light font-medium'
@@ -52,6 +110,18 @@ export default function AuthModal({ tab, onTabChange, onClose, onSuccess }: Prop
             </button>
           ))}
         </div>
+
+        {/* Banners */}
+        {error && (
+          <div className="mb-4 px-3 py-2.5 bg-[#1a0d0d] border border-[#3d1a1a] rounded-lg text-[#f87171] text-xs">
+            {error}
+          </div>
+        )}
+        {message && (
+          <div className="mb-4 px-3 py-2.5 bg-[#0d1a0d] border border-[#1a3d1a] rounded-lg text-[#4ade80] text-xs">
+            {message}
+          </div>
+        )}
 
         {/* Form */}
         <div className="space-y-4">
@@ -83,6 +153,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onSuccess }: Prop
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
               placeholder="••••••••"
               className="w-full bg-[#0d0d0d] border border-[#222] rounded-lg text-[#e5e5e5] px-3 py-2.5 text-sm outline-none focus:border-accent transition-colors placeholder:text-[#333]"
             />
@@ -97,10 +168,21 @@ export default function AuthModal({ tab, onTabChange, onClose, onSuccess }: Prop
           )}
 
           <button
-            onClick={onSuccess}
-            className="w-full bg-accent hover:bg-accent-light text-white py-2.5 rounded-lg text-sm font-medium transition-all mt-2"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full bg-accent hover:bg-accent-light disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 rounded-lg text-sm font-medium transition-all mt-2 flex items-center justify-center gap-2"
           >
-            {tab === 'login' ? 'Log in to dashboard →' : 'Create account →'}
+            {loading ? (
+              <>
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                </svg>
+                {tab === 'login' ? 'Logging in…' : 'Creating account…'}
+              </>
+            ) : (
+              tab === 'login' ? 'Log in to dashboard →' : 'Create account →'
+            )}
           </button>
 
           <div className="relative flex items-center gap-3 my-1">
@@ -118,7 +200,7 @@ export default function AuthModal({ tab, onTabChange, onClose, onSuccess }: Prop
         <p className="text-center text-xs text-[#444] mt-5">
           {tab === 'login' ? "Don't have an account? " : 'Already have an account? '}
           <span
-            onClick={() => onTabChange(tab === 'login' ? 'signup' : 'login')}
+            onClick={() => handleTabChange(tab === 'login' ? 'signup' : 'login')}
             className="text-accent-light cursor-pointer hover:underline"
           >
             {tab === 'login' ? 'Sign up free' : 'Log in'}
