@@ -28,7 +28,6 @@ export default function Home() {
         <HeroPage
           onLogin={() => openAuth('login')}
           onSignup={() => openAuth('signup')}
-          onOpenDash={() => setPage('dashboard')}
         />
       )}
       {page === 'dashboard' && (

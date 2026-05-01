@@ -4,10 +4,9 @@ import Image from 'next/image'
 interface Props {
   onLogin: () => void
   onSignup: () => void
-  onOpenDash: () => void
 }
 
-export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
+export default function HeroPage({ onLogin, onSignup }: Props) {
   return (
     <div className="min-h-screen bg-bg text-white">
       {/* NAV */}
@@ -58,16 +57,16 @@ export default function HeroPage({ onLogin, onSignup, onOpenDash }: Props) {
         {/* CTAs */}
         <div className="relative flex gap-3 flex-wrap justify-center">
           <button
-            onClick={onOpenDash}
+            onClick={onSignup}
             className="px-7 py-3 text-base font-medium bg-accent text-white rounded-xl hover:bg-accent-light transition-all hover:-translate-y-0.5"
           >
-            Open dashboard
+            Sign up free →
           </button>
           <button
-            onClick={onSignup}
+            onClick={onLogin}
             className="px-7 py-3 text-base text-[#ccc] border border-[#333] rounded-xl hover:border-[#555] hover:text-white transition-all"
           >
-            Start free trial
+            Log in
           </button>
         </div>
 
