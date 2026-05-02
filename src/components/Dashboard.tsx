@@ -11,8 +11,11 @@ interface Detection {
   egg_cluster_count: number
   photo_url: string | null
   photo_size: number | null
-  camera_label: string | null
-  confidence: number | null
+  platform: string | null
+  bucket: string | null
+  photo_path: string | null
+  photo_original_name: string | null
+  photo_mime_type: string | null
 }
 
 type FilterType = 'all' | 'eggs' | 'clear'
@@ -35,7 +38,7 @@ export default function Dashboard({ session }: Props) {
     setError(null)
     try {
       const { data, error: err } = await supabase
-        .from('snail_detections')
+        .from('snaildetections')
         .select('*')
         .order('captured_at', { ascending: false })
         .limit(100)
@@ -59,7 +62,7 @@ export default function Dashboard({ session }: Props) {
   const today = new Date().toDateString()
   const todayCount   = detections.filter(d => new Date(d.captured_at).toDateString() === today).length
   const withEggs     = detections.filter(d => d.egg_cluster_count > 0).length
-  const avgConf      = detections.filter(d => d.confidence).reduce((a, d, _, arr) => a + (d.confidence! / arr.length), 0)
+  const avgConf      = 0 // confidence not stored in this schema
   const lastDetected = detections[0] ? formatRelative(detections[0].captured_at) : '—'
 
   return (
@@ -92,7 +95,7 @@ export default function Dashboard({ session }: Props) {
           { label: 'Total detections',  val: String(detections.length), sub: 'All time',          subColor: 'text-[#555]' },
           { label: 'Today',             val: String(todayCount),        sub: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), subColor: 'text-[#555]' },
           { label: 'With egg clusters', val: String(withEggs),          sub: detections.length ? `${Math.round(withEggs / detections.length * 100)}% of scans` : '—', subColor: withEggs > 0 ? 'text-[#f87171]' : 'text-[#555]' },
-          { label: 'Avg confidence',    val: avgConf ? `${Math.round(avgConf)}%` : '—', sub: 'Across detections', subColor: 'text-[#555]' },
+          { label: 'Platform',          val: detections.filter(d => d.platform === 'android').length ? 'Android' : '—', sub: `${detections.filter(d=>d.platform==='android').length} android scans`, subColor: 'text-[#555]' },
         ].map((m) => (
           <div key={m.label} className="bg-card border border-border rounded-xl p-4">
             <div className="text-xs text-[#444] mb-1.5">{m.label}</div>
@@ -142,7 +145,7 @@ export default function Dashboard({ session }: Props) {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-[#1a1a1a]">
-                {['Timestamp', 'Camera', 'Egg clusters', 'Confidence', 'Size', 'Capture'].map((h) => (
+                {['Timestamp', 'Platform', 'Egg clusters', 'Photo size', 'Capture'].map((h) => (
                   <th key={h} className="px-4 py-2.5 text-left text-[#444] font-normal">{h}</th>
                 ))}
               </tr>
@@ -156,7 +159,7 @@ export default function Dashboard({ session }: Props) {
                     onClick={() => setExpandedId(expandedId === det.id ? null : det.id)}
                   >
                     <td className="px-4 py-3 font-mono text-[#555]">{formatTimestamp(det.captured_at)}</td>
-                    <td className="px-4 py-3 text-[#666]">{det.camera_label || 'Unknown cam'}</td>
+                    <td className="px-4 py-3 text-[#666]">{det.platform || 'android'}</td>
                     <td className="px-4 py-3">
                       <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${
                         det.egg_cluster_count > 0
@@ -165,11 +168,6 @@ export default function Dashboard({ session }: Props) {
                       }`}>
                         {det.egg_cluster_count > 0 ? `🥚 ${det.egg_cluster_count} cluster${det.egg_cluster_count !== 1 ? 's' : ''}` : '✓ Clear'}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono">
-                      {det.confidence != null
-                        ? <span className={det.confidence >= 90 ? 'text-[#f87171]' : det.confidence >= 75 ? 'text-[#fbbf24]' : 'text-[#aaa]'}>{det.confidence}%</span>
-                        : <span className="text-[#333]">—</span>}
                     </td>
                     <td className="px-4 py-3 text-[#555]">
                       {det.photo_size ? formatSize(det.photo_size) : '—'}
@@ -186,7 +184,7 @@ export default function Dashboard({ session }: Props) {
                   </tr>
                   {expandedId === det.id && (
                     <tr key={`${det.id}-expanded`} className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
-                      <td colSpan={6} className="px-5 py-4">
+                      <td colSpan={5} className="px-5 py-4">
                         <div className="flex gap-5">
                           {det.photo_url && (
                             <div className="relative w-48 h-32 rounded-lg overflow-hidden border border-[#222] flex-shrink-0">

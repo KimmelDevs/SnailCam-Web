@@ -37,7 +37,7 @@ export default function ProfilePanel({ session, onLogout }: Props) {
   async function fetchStats() {
     try {
       const { data } = await supabase
-        .from('snail_detections')
+        .from('snaildetections')
         .select('egg_cluster_count, captured_at')
         .order('captured_at', { ascending: false })
 
