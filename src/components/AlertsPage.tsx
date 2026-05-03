@@ -25,12 +25,12 @@ interface Alert {
 interface Props { session: Session }
 
 export default function AlertsPage({ session }: Props) {
-  const [alerts, setAlerts]         = useState<Alert[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [error, setError]           = useState<string | null>(null)
-  const [pushState, setPushState]   = useState<'granted' | 'denied' | 'default' | 'unsupported'>('default')
-  const [pushLoading, setPushLoading] = useState(false)
-  const [filter, setFilter]         = useState<'all' | 'unread'>('unread')
+  const [alerts, setAlerts]             = useState<Alert[]>([])
+  const [loading, setLoading]           = useState(true)
+  const [error, setError]               = useState<string | null>(null)
+  const [pushState, setPushState]       = useState<'granted' | 'denied' | 'default' | 'unsupported'>('default')
+  const [pushLoading, setPushLoading]   = useState(false)
+  const [filter, setFilter]             = useState<'all' | 'unread'>('unread')
 
   const fetchAlerts = useCallback(async () => {
     setLoading(true)
@@ -58,13 +58,10 @@ export default function AlertsPage({ session }: Props) {
     fetchAlerts()
     getPushState().then(setPushState)
 
-    // Realtime subscription — new alerts appear instantly
     const channel = supabase
       .channel('alerts-realtime')
       .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'alerts',
+        event: 'INSERT', schema: 'public', table: 'alerts',
         filter: `user_id=eq.${session.user.id}`,
       }, () => fetchAlerts())
       .subscribe()
@@ -85,67 +82,58 @@ export default function AlertsPage({ session }: Props) {
   }
 
   async function markReviewed(alertId: string) {
-    await supabase
-      .from('alerts')
-      .update({ reviewed_at: new Date().toISOString() })
-      .eq('id', alertId)
-    setAlerts(prev => prev.map(a =>
-      a.id === alertId ? { ...a, reviewed_at: new Date().toISOString() } : a
-    ))
+    await supabase.from('alerts').update({ reviewed_at: new Date().toISOString() }).eq('id', alertId)
+    setAlerts(prev => prev.map(a => a.id === alertId ? { ...a, reviewed_at: new Date().toISOString() } : a))
   }
 
   async function markAllReviewed() {
     const unread = alerts.filter(a => !a.reviewed_at).map(a => a.id)
     if (!unread.length) return
-    await supabase
-      .from('alerts')
-      .update({ reviewed_at: new Date().toISOString() })
-      .in('id', unread)
+    await supabase.from('alerts').update({ reviewed_at: new Date().toISOString() }).in('id', unread)
     setAlerts(prev => prev.map(a => ({ ...a, reviewed_at: a.reviewed_at ?? new Date().toISOString() })))
   }
 
-  const filtered  = filter === 'unread' ? alerts.filter(a => !a.reviewed_at) : alerts
+  const filtered    = filter === 'unread' ? alerts.filter(a => !a.reviewed_at) : alerts
   const unreadCount = alerts.filter(a => !a.reviewed_at).length
 
   return (
-    <div className="px-8 py-6">
+    <div className="px-4 md:px-8 py-4 md:py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-4 md:mb-6 gap-3">
         <div>
-          <h1 className="text-lg font-medium text-[#f0f0f0]">Alerts</h1>
-          <p className="text-xs text-[#444] mt-0.5">Egg detection events that need your attention</p>
+          <h1 className="text-base md:text-lg font-medium text-[#f0f0f0]">Alerts</h1>
+          <p className="text-xs text-[#444] mt-0.5 hidden md:block">Egg detection events that need your attention</p>
         </div>
 
         {/* Push toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex-shrink-0">
           {pushState === 'unsupported' ? (
-            <span className="text-xs text-[#444]">Push not supported in this browser</span>
+            <span className="text-xs text-[#444]">Not supported</span>
           ) : pushState === 'denied' ? (
-            <span className="text-xs text-[#f87171]">Notifications blocked — enable in browser settings</span>
+            <span className="text-xs text-[#f87171] text-right block max-w-[140px] leading-tight">Blocked — enable in browser settings</span>
           ) : (
             <button
               onClick={handlePushToggle}
               disabled={pushLoading}
-              className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border transition-all ${
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all ${
                 pushState === 'granted'
-                  ? 'bg-[#0d1a0d] border-[#1a3d1a] text-[#4ade80] hover:bg-[#0d220d]'
-                  : 'bg-[#111] border-[#222] text-[#666] hover:text-[#aaa]'
+                  ? 'bg-[#0d1a0d] border-[#1a3d1a] text-[#4ade80]'
+                  : 'bg-[#111] border-[#222] text-[#666]'
               } disabled:opacity-50`}
             >
-              {pushLoading ? (
-                <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <span>{pushState === 'granted' ? '🔔' : '🔕'}</span>
-              )}
-              {pushState === 'granted' ? 'Notifications on' : 'Enable notifications'}
+              {pushLoading
+                ? <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                : <span>{pushState === 'granted' ? '🔔' : '🔕'}</span>
+              }
+              <span className="hidden md:inline">{pushState === 'granted' ? 'Notifications on' : 'Enable notifications'}</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Summary + filter */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-2">
+      {/* Filter + mark all */}
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <div className="flex gap-1">
           {[
             { id: 'unread', label: `Unread (${unreadCount})` },
             { id: 'all',    label: `All (${alerts.length})` },
@@ -163,18 +151,14 @@ export default function AlertsPage({ session }: Props) {
             </button>
           ))}
         </div>
-
         {unreadCount > 0 && (
-          <button
-            onClick={markAllReviewed}
-            className="text-[11px] text-[#555] hover:text-[#aaa] transition-colors"
-          >
-            Mark all as reviewed
+          <button onClick={markAllReviewed} className="text-[11px] text-[#555] hover:text-[#aaa] transition-colors whitespace-nowrap">
+            Mark all reviewed
           </button>
         )}
       </div>
 
-      {/* Alert list */}
+      {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="w-5 h-5 border-2 border-[#333] border-t-accent rounded-full animate-spin" />
@@ -193,17 +177,13 @@ export default function AlertsPage({ session }: Props) {
           {filtered.map(alert => (
             <div
               key={alert.id}
-              className={`flex items-center gap-4 px-4 py-3 rounded-xl border transition-all ${
-                alert.reviewed_at
-                  ? 'bg-[#0a0a0a] border-[#111]'
-                  : 'bg-[#0d0a0a] border-[#2a1515]'
+              className={`flex items-center gap-3 px-3 md:px-4 py-3 rounded-xl border transition-all ${
+                alert.reviewed_at ? 'bg-[#0a0a0a] border-[#111]' : 'bg-[#0d0a0a] border-[#2a1515]'
               }`}
             >
               {/* Unread dot */}
               <div className="w-2 flex-shrink-0 flex justify-center">
-                {!alert.reviewed_at && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#f87171]" />
-                )}
+                {!alert.reviewed_at && <div className="w-1.5 h-1.5 rounded-full bg-[#f87171]" />}
               </div>
 
               {/* Thumbnail */}
@@ -212,17 +192,15 @@ export default function AlertsPage({ session }: Props) {
                   <Image src={alert.detection.photo_url} alt="detection" fill className="object-cover" />
                 </div>
               ) : (
-                <div className="w-12 h-9 rounded-lg bg-[#111] border border-[#1a1a1a] flex items-center justify-center text-lg flex-shrink-0">
-                  🥚
-                </div>
+                <div className="w-12 h-9 rounded-lg bg-[#111] border border-[#1a1a1a] flex items-center justify-center text-lg flex-shrink-0">🥚</div>
               )}
 
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-[#ddd] font-medium">
-                  🥚 {alert.detection?.egg_cluster_count} egg cluster{alert.detection?.egg_cluster_count !== 1 ? 's' : ''} detected
+                  🥚 {alert.detection?.egg_cluster_count} cluster{alert.detection?.egg_cluster_count !== 1 ? 's' : ''} detected
                 </div>
-                <div className="text-[10px] text-[#444] mt-0.5 font-mono">
+                <div className="text-[10px] text-[#444] mt-0.5 font-mono truncate">
                   {formatTimestamp(alert.created_at)}
                   {alert.detection?.platform && ` · ${alert.detection.platform}`}
                 </div>
@@ -232,12 +210,13 @@ export default function AlertsPage({ session }: Props) {
               {!alert.reviewed_at ? (
                 <button
                   onClick={() => markReviewed(alert.id)}
-                  className="text-[11px] px-3 py-1 rounded-lg bg-[#111] border border-[#222] text-[#666] hover:text-[#ccc] hover:border-[#333] transition-all flex-shrink-0"
+                  className="text-[10px] md:text-[11px] px-2 md:px-3 py-1 rounded-lg bg-[#111] border border-[#222] text-[#666] hover:text-[#ccc] hover:border-[#333] transition-all flex-shrink-0"
                 >
-                  Mark reviewed
+                  ✓
+                  <span className="hidden md:inline"> Mark reviewed</span>
                 </button>
               ) : (
-                <span className="text-[10px] text-[#333] flex-shrink-0">Reviewed</span>
+                <span className="text-[10px] text-[#333] flex-shrink-0">Done</span>
               )}
             </div>
           ))}

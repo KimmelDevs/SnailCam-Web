@@ -93,8 +93,7 @@ export default function LogsPage({ session }: Props) {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated  = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-
-  const eggsCount = detections.filter(d => d.egg_cluster_count > 0).length
+  const eggsCount  = detections.filter(d => d.egg_cluster_count > 0).length
   const clearCount = detections.filter(d => d.egg_cluster_count === 0).length
 
   const SortIcon = ({ field }: { field: SortField }) => (
@@ -104,23 +103,21 @@ export default function LogsPage({ session }: Props) {
   )
 
   return (
-    <div className="px-8 py-6">
+    <div className="px-4 md:px-8 py-4 md:py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div>
-          <h1 className="text-lg font-medium text-[#f0f0f0]">Detection Log</h1>
-          <p className="text-xs text-[#444] mt-0.5">
-            Full history of all snail egg scan events
-          </p>
+          <h1 className="text-base md:text-lg font-medium text-[#f0f0f0]">Detection Log</h1>
+          <p className="text-xs text-[#444] mt-0.5 hidden md:block">Full history of all snail egg scan events</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0d1a0d] border border-[#1a3d1a] text-[#4ade80] text-xs rounded-full">
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-[#0d1a0d] border border-[#1a3d1a] text-[#4ade80] text-xs rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse" />
             Live
           </div>
           <button
             onClick={fetchDetections}
-            className="px-3 py-1.5 bg-[#111] hover:bg-[#1a1a1a] text-[#aaa] hover:text-white text-xs font-medium rounded-lg border border-border transition-all"
+            className="px-2.5 py-1.5 bg-[#111] hover:bg-[#1a1a1a] text-[#aaa] hover:text-white text-xs font-medium rounded-lg border border-border transition-all"
           >
             ↻ Refresh
           </button>
@@ -129,11 +126,11 @@ export default function LogsPage({ session }: Props) {
 
       {/* Summary pills */}
       {!loading && !error && (
-        <div className="flex gap-2 mb-5">
+        <div className="flex gap-2 mb-4 flex-wrap">
           {[
-            { label: `${detections.length} total`,   color: 'bg-[#111] border-[#222] text-[#666]' },
-            { label: `🥚 ${eggsCount} with eggs`,     color: eggsCount  > 0 ? 'bg-[#1a0d0d] border-[#3d1a1a] text-[#f87171]' : 'bg-[#111] border-[#222] text-[#444]' },
-            { label: `✓ ${clearCount} clear`,         color: clearCount > 0 ? 'bg-[#0d130d] border-[#1a3d1a] text-[#4ade80]' : 'bg-[#111] border-[#222] text-[#444]' },
+            { label: `${detections.length} total`, color: 'bg-[#111] border-[#222] text-[#666]' },
+            { label: `🥚 ${eggsCount}`,             color: eggsCount  > 0 ? 'bg-[#1a0d0d] border-[#3d1a1a] text-[#f87171]' : 'bg-[#111] border-[#222] text-[#444]' },
+            { label: `✓ ${clearCount}`,             color: clearCount > 0 ? 'bg-[#0d130d] border-[#1a3d1a] text-[#4ade80]' : 'bg-[#111] border-[#222] text-[#444]' },
           ].map(p => (
             <span key={p.label} className={`text-[11px] px-3 py-1 rounded-full border font-mono ${p.color}`}>{p.label}</span>
           ))}
@@ -141,38 +138,35 @@ export default function LogsPage({ session }: Props) {
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center gap-3 mb-4">
-        {/* Search */}
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mb-4">
+        <div className="relative flex-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#444] text-xs">⌕</span>
           <input
             type="text"
             placeholder="Search event ID, platform…"
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(0) }}
-            className="w-full pl-7 pr-3 py-1.5 bg-[#0d0d0d] border border-border rounded-lg text-xs text-[#ccc] placeholder-[#333] focus:outline-none focus:border-[#3d3d7a] transition-colors"
+            className="w-full pl-7 pr-3 py-2 bg-[#0d0d0d] border border-border rounded-lg text-xs text-[#ccc] placeholder-[#333] focus:outline-none focus:border-[#3d3d7a] transition-colors"
           />
         </div>
-
-        {/* Filter */}
         <div className="flex gap-1">
           {(['all', 'eggs', 'clear'] as FilterType[]).map(f => (
             <button
               key={f}
               onClick={() => { setFilter(f); setPage(0) }}
-              className={`text-[11px] px-3 py-1.5 rounded-lg border transition-all capitalize ${
+              className={`flex-1 md:flex-none text-[11px] px-3 py-2 rounded-lg border transition-all ${
                 filter === f
                   ? 'bg-[#1a1a2e] border-[#3d3d7a] text-accent-light'
                   : 'bg-transparent border-[#222] text-[#555] hover:text-[#888]'
               }`}
             >
-              {f === 'eggs' ? '🥚 With eggs' : f === 'clear' ? '✓ Clear' : 'All'}
+              {f === 'eggs' ? '🥚 Eggs' : f === 'clear' ? '✓ Clear' : 'All'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Table */}
+      {/* Content */}
       <div className="bg-[#0d0d0d] border border-border rounded-xl overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -185,157 +179,153 @@ export default function LogsPage({ session }: Props) {
           </div>
         ) : filtered.length === 0 ? (
           <div className="px-5 py-16 text-center text-[#444] text-sm">
-            {detections.length === 0
-              ? 'No detections yet. Scans from the mobile app will appear here.'
-              : 'No detections match this filter.'}
+            {detections.length === 0 ? 'No detections yet.' : 'No detections match this filter.'}
           </div>
         ) : (
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-[#1a1a1a]">
-                <th
-                  className="px-4 py-3 text-left text-[#444] font-normal cursor-pointer hover:text-[#666] select-none"
-                  onClick={() => toggleSort('captured_at')}
-                >
-                  Timestamp <SortIcon field="captured_at" />
-                </th>
-                <th className="px-4 py-3 text-left text-[#444] font-normal">Event ID</th>
-                <th className="px-4 py-3 text-left text-[#444] font-normal">Platform</th>
-                <th
-                  className="px-4 py-3 text-left text-[#444] font-normal cursor-pointer hover:text-[#666] select-none"
-                  onClick={() => toggleSort('egg_cluster_count')}
-                >
-                  Egg clusters <SortIcon field="egg_cluster_count" />
-                </th>
-                <th
-                  className="px-4 py-3 text-left text-[#444] font-normal cursor-pointer hover:text-[#666] select-none"
-                  onClick={() => toggleSort('photo_size')}
-                >
-                  Photo size <SortIcon field="photo_size" />
-                </th>
-                <th className="px-4 py-3 text-left text-[#444] font-normal">Capture</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile: card list */}
+            <div className="md:hidden divide-y divide-[#111]">
               {paginated.map((det) => (
-                <Fragment key={det.id}>
-                  <tr
-                    className="border-b border-[#111] hover:bg-[#111] transition-colors cursor-pointer"
+                <div key={det.id}>
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-[#111] transition-colors"
                     onClick={() => setExpandedId(expandedId === det.id ? null : det.id)}
                   >
-                    <td className="px-4 py-3 font-mono text-[#555]">{formatTimestamp(det.captured_at)}</td>
-                    <td className="px-4 py-3 font-mono text-[#444] max-w-[140px] truncate" title={det.event_id}>
-                      {det.event_id.slice(0, 8)}…
-                    </td>
-                    <td className="px-4 py-3 text-[#666]">{det.platform || 'android'}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${
-                        det.egg_cluster_count > 0
-                          ? 'bg-[#1a0d0d] text-[#f87171] border border-[#3d1a1a]'
-                          : 'bg-[#0d130d] text-[#4ade80] border border-[#1a3d1a]'
-                      }`}>
-                        {det.egg_cluster_count > 0
-                          ? `🥚 ${det.egg_cluster_count} cluster${det.egg_cluster_count !== 1 ? 's' : ''}`
-                          : '✓ Clear'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-[#555]">
-                      {det.photo_size ? formatSize(det.photo_size) : '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {det.photo_url ? (
-                        <div className="w-10 h-7 rounded overflow-hidden border border-[#2a2a5a] bg-[#1a1a2e] relative">
-                          <Image src={det.photo_url} alt="capture" fill className="object-cover" />
-                        </div>
-                      ) : (
-                        <span className="text-[#333]">—</span>
-                      )}
-                    </td>
-                  </tr>
-
+                    {det.photo_url ? (
+                      <div className="w-12 h-9 rounded-lg overflow-hidden border border-[#222] relative flex-shrink-0">
+                        <Image src={det.photo_url} alt="capture" fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-9 rounded-lg bg-[#111] border border-[#1a1a1a] flex items-center justify-center text-base flex-shrink-0">🥚</div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
+                          det.egg_cluster_count > 0
+                            ? 'bg-[#1a0d0d] text-[#f87171] border border-[#3d1a1a]'
+                            : 'bg-[#0d130d] text-[#4ade80] border border-[#1a3d1a]'
+                        }`}>
+                          {det.egg_cluster_count > 0 ? `🥚 ${det.egg_cluster_count}` : '✓'}
+                        </span>
+                        {det.photo_size && <span className="text-[10px] text-[#444]">{formatSize(det.photo_size)}</span>}
+                      </div>
+                      <div className="text-[11px] text-[#555] font-mono truncate">{formatTimestamp(det.captured_at)}</div>
+                    </div>
+                    <span className="text-[#333] text-xs flex-shrink-0">{expandedId === det.id ? '▲' : '▼'}</span>
+                  </button>
                   {expandedId === det.id && (
-                    <tr className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
-                      <td colSpan={6} className="px-5 py-4">
-                        <div className="flex gap-5">
-                          {det.photo_url && (
-                            <div className="relative w-48 h-32 rounded-lg overflow-hidden border border-[#222] flex-shrink-0">
-                              <Image src={det.photo_url} alt="Detection capture" fill className="object-cover" />
-                            </div>
-                          )}
-                          <div className="space-y-1.5">
-                            <div className="text-xs text-[#555]">
-                              <span className="text-[#333]">Event ID:</span>{' '}
-                              <span className="font-mono">{det.event_id}</span>
-                            </div>
-                            <div className="text-xs text-[#555]">
-                              <span className="text-[#333]">Captured:</span>{' '}
-                              {formatTimestamp(det.captured_at)}
-                            </div>
-                            <div className="text-xs text-[#555]">
-                              <span className="text-[#333]">Egg clusters:</span>{' '}
-                              {det.egg_cluster_count}
-                            </div>
-                            <div className="text-xs text-[#555]">
-                              <span className="text-[#333]">Platform:</span>{' '}
-                              {det.platform || 'android'}
-                            </div>
-                            {det.photo_original_name && (
-                              <div className="text-xs text-[#555]">
-                                <span className="text-[#333]">File:</span>{' '}
-                                <span className="font-mono">{det.photo_original_name}</span>
-                              </div>
-                            )}
-                            {det.photo_mime_type && (
-                              <div className="text-xs text-[#555]">
-                                <span className="text-[#333]">MIME:</span>{' '}
-                                <span className="font-mono">{det.photo_mime_type}</span>
-                              </div>
-                            )}
-                            {det.photo_url && (
-                              <a
-                                href={det.photo_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block text-xs text-accent-light hover:underline mt-1"
-                              >
-                                View full image ↗
-                              </a>
-                            )}
-                          </div>
+                    <div className="px-4 pb-4 bg-[#0a0a0a] space-y-1.5">
+                      {det.photo_url && (
+                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-[#222] mb-3">
+                          <Image src={det.photo_url} alt="Detection" fill className="object-cover" />
                         </div>
+                      )}
+                      <div className="text-xs text-[#555]"><span className="text-[#333]">Event ID:</span> <span className="font-mono break-all text-[10px]">{det.event_id}</span></div>
+                      <div className="text-xs text-[#555]"><span className="text-[#333]">Captured:</span> {formatTimestamp(det.captured_at)}</div>
+                      <div className="text-xs text-[#555]"><span className="text-[#333]">Egg clusters:</span> {det.egg_cluster_count}</div>
+                      <div className="text-xs text-[#555]"><span className="text-[#333]">Platform:</span> {det.platform || 'android'}</div>
+                      {det.photo_original_name && <div className="text-xs text-[#555]"><span className="text-[#333]">File:</span> <span className="font-mono text-[10px]">{det.photo_original_name}</span></div>}
+                      {det.photo_url && (
+                        <a href={det.photo_url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-accent-light hover:underline mt-1">View full image ↗</a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <table className="hidden md:table w-full text-xs">
+              <thead>
+                <tr className="border-b border-[#1a1a1a]">
+                  <th className="px-4 py-3 text-left text-[#444] font-normal cursor-pointer hover:text-[#666] select-none" onClick={() => toggleSort('captured_at')}>
+                    Timestamp <SortIcon field="captured_at" />
+                  </th>
+                  <th className="px-4 py-3 text-left text-[#444] font-normal">Event ID</th>
+                  <th className="px-4 py-3 text-left text-[#444] font-normal">Platform</th>
+                  <th className="px-4 py-3 text-left text-[#444] font-normal cursor-pointer hover:text-[#666] select-none" onClick={() => toggleSort('egg_cluster_count')}>
+                    Egg clusters <SortIcon field="egg_cluster_count" />
+                  </th>
+                  <th className="px-4 py-3 text-left text-[#444] font-normal cursor-pointer hover:text-[#666] select-none" onClick={() => toggleSort('photo_size')}>
+                    Photo size <SortIcon field="photo_size" />
+                  </th>
+                  <th className="px-4 py-3 text-left text-[#444] font-normal">Capture</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginated.map((det) => (
+                  <Fragment key={det.id}>
+                    <tr
+                      className="border-b border-[#111] hover:bg-[#111] transition-colors cursor-pointer"
+                      onClick={() => setExpandedId(expandedId === det.id ? null : det.id)}
+                    >
+                      <td className="px-4 py-3 font-mono text-[#555]">{formatTimestamp(det.captured_at)}</td>
+                      <td className="px-4 py-3 font-mono text-[#444] max-w-[140px] truncate" title={det.event_id}>{det.event_id.slice(0, 8)}…</td>
+                      <td className="px-4 py-3 text-[#666]">{det.platform || 'android'}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-mono ${
+                          det.egg_cluster_count > 0
+                            ? 'bg-[#1a0d0d] text-[#f87171] border border-[#3d1a1a]'
+                            : 'bg-[#0d130d] text-[#4ade80] border border-[#1a3d1a]'
+                        }`}>
+                          {det.egg_cluster_count > 0 ? `🥚 ${det.egg_cluster_count} cluster${det.egg_cluster_count !== 1 ? 's' : ''}` : '✓ Clear'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-[#555]">{det.photo_size ? formatSize(det.photo_size) : '—'}</td>
+                      <td className="px-4 py-3">
+                        {det.photo_url ? (
+                          <div className="w-10 h-7 rounded overflow-hidden border border-[#2a2a5a] bg-[#1a1a2e] relative">
+                            <Image src={det.photo_url} alt="capture" fill className="object-cover" />
+                          </div>
+                        ) : <span className="text-[#333]">—</span>}
                       </td>
                     </tr>
-                  )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
+                    {expandedId === det.id && (
+                      <tr className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
+                        <td colSpan={6} className="px-5 py-4">
+                          <div className="flex gap-5">
+                            {det.photo_url && (
+                              <div className="relative w-48 h-32 rounded-lg overflow-hidden border border-[#222] flex-shrink-0">
+                                <Image src={det.photo_url} alt="Detection capture" fill className="object-cover" />
+                              </div>
+                            )}
+                            <div className="space-y-1.5">
+                              <div className="text-xs text-[#555]"><span className="text-[#333]">Event ID:</span> <span className="font-mono">{det.event_id}</span></div>
+                              <div className="text-xs text-[#555]"><span className="text-[#333]">Captured:</span> {formatTimestamp(det.captured_at)}</div>
+                              <div className="text-xs text-[#555]"><span className="text-[#333]">Egg clusters:</span> {det.egg_cluster_count}</div>
+                              <div className="text-xs text-[#555]"><span className="text-[#333]">Platform:</span> {det.platform || 'android'}</div>
+                              {det.photo_original_name && <div className="text-xs text-[#555]"><span className="text-[#333]">File:</span> <span className="font-mono">{det.photo_original_name}</span></div>}
+                              {det.photo_mime_type && <div className="text-xs text-[#555]"><span className="text-[#333]">MIME:</span> <span className="font-mono">{det.photo_mime_type}</span></div>}
+                              {det.photo_url && (
+                                <a href={det.photo_url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-accent-light hover:underline mt-1">View full image ↗</a>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
 
-        {/* Footer: pagination + count */}
         {!loading && !error && filtered.length > 0 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-[#111]">
+          <div className="flex items-center justify-between px-4 md:px-5 py-3 border-t border-[#111]">
             <span className="text-xs text-[#444] font-mono">
               {filtered.length} entr{filtered.length !== 1 ? 'ies' : 'y'}
-              {search || filter !== 'all' ? ` (filtered from ${detections.length})` : ''}
+              {(search || filter !== 'all') ? ` (of ${detections.length})` : ''}
             </span>
             {totalPages > 1 && (
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  className="text-[11px] px-2.5 py-1 rounded border border-[#222] text-[#555] hover:text-[#888] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                >
+                <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
+                  className="text-[11px] px-2.5 py-1 rounded border border-[#222] text-[#555] hover:text-[#888] disabled:opacity-30 disabled:cursor-not-allowed transition-all">
                   ← Prev
                 </button>
-                <span className="text-[11px] text-[#444] font-mono">
-                  {page + 1} / {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
-                  className="text-[11px] px-2.5 py-1 rounded border border-[#222] text-[#555] hover:text-[#888] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                >
+                <span className="text-[11px] text-[#444] font-mono">{page + 1} / {totalPages}</span>
+                <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}
+                  className="text-[11px] px-2.5 py-1 rounded border border-[#222] text-[#555] hover:text-[#888] disabled:opacity-30 disabled:cursor-not-allowed transition-all">
                   Next →
                 </button>
               </div>

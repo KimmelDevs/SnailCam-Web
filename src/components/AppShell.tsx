@@ -26,7 +26,6 @@ export default function AppShell({ session, onLogout }: Props) {
   const [unreadAlerts, setUnreadAlerts] = useState(0)
 
   useEffect(() => {
-    // Fetch initial unread count
     supabase
       .from('alerts')
       .select('id', { count: 'exact', head: true })
@@ -34,7 +33,6 @@ export default function AppShell({ session, onLogout }: Props) {
       .is('reviewed_at', null)
       .then(({ count }) => setUnreadAlerts(count ?? 0))
 
-    // Live updates
     const channel = supabase
       .channel('alerts-badge')
       .on('postgres_changes', {
@@ -63,8 +61,9 @@ export default function AppShell({ session, onLogout }: Props) {
 
   return (
     <div className="flex min-h-screen bg-bg text-white">
-      {/* SIDEBAR */}
-      <aside className="w-52 bg-[#0a0a0a] border-r border-border flex flex-col shrink-0">
+
+      {/* ── DESKTOP SIDEBAR (hidden on mobile) ── */}
+      <aside className="hidden md:flex w-52 bg-[#0a0a0a] border-r border-border flex-col shrink-0">
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-border">
           <div className="w-7 h-7 bg-[#1a1a2e] border border-[#3d3d7a] rounded-lg flex items-center justify-center text-sm">🥚</div>
@@ -111,13 +110,55 @@ export default function AppShell({ session, onLogout }: Props) {
         </div>
       </aside>
 
-      {/* CONTENT */}
-      <main className="flex-1 overflow-y-auto">
-        {tab === 'dashboard' && <Dashboard session={session} />}
-        {tab === 'logs'      && <LogsPage session={session} />}
-        {tab === 'alerts'    && <AlertsPage session={session} />}
-        {tab === 'profile'   && <ProfilePanel session={session} onLogout={handleLogout} />}
-      </main>
+      {/* ── CONTENT ── */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Mobile top bar */}
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0a0a0a] border-b border-border shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#1a1a2e] border border-[#3d3d7a] rounded-md flex items-center justify-center text-xs">🥚</div>
+            <span className="text-sm font-medium text-white">SnailEggs</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {unreadAlerts > 0 && (
+              <span className="text-[10px] bg-[#f87171] text-black font-bold px-1.5 py-0.5 rounded-full">
+                {unreadAlerts > 99 ? '99+' : unreadAlerts}
+              </span>
+            )}
+            <div className="w-7 h-7 rounded-full bg-[#1e1e3a] border border-[#3d3d7a] flex items-center justify-center text-xs font-bold text-accent-light">
+              {initials || '?'}
+            </div>
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+          {tab === 'dashboard' && <Dashboard session={session} />}
+          {tab === 'logs'      && <LogsPage session={session} />}
+          {tab === 'alerts'    && <AlertsPage session={session} />}
+          {tab === 'profile'   && <ProfilePanel session={session} onLogout={handleLogout} />}
+        </main>
+
+        {/* ── MOBILE BOTTOM NAV ── */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0a0a0a] border-t border-border flex z-50">
+          {NAV.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setTab(item.id)}
+              className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 relative transition-colors ${
+                tab === item.id ? 'text-accent-light' : 'text-[#444]'
+              }`}
+            >
+              <span className="text-lg leading-none">{item.icon}</span>
+              <span className="text-[9px] font-medium">{item.label}</span>
+              {item.id === 'alerts' && unreadAlerts > 0 && (
+                <span className="absolute top-1.5 right-1/4 text-[8px] bg-[#f87171] text-black font-bold px-1 py-px rounded-full leading-none">
+                  {unreadAlerts > 99 ? '99+' : unreadAlerts}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
+      </div>
     </div>
   )
 }
