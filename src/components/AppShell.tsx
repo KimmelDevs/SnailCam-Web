@@ -1,8 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import Dashboard from './Dashboard'
 import LogsPage from './LogsPage'
+import AlertsPage from './AlertsPage'
 import ProfilePanel from './ProfilePanel'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -22,6 +23,35 @@ const NAV: { id: Tab; icon: string; label: string }[] = [
 
 export default function AppShell({ session, onLogout }: Props) {
   const [tab, setTab] = useState<Tab>('dashboard')
+  const [unreadAlerts, setUnreadAlerts] = useState(0)
+
+  useEffect(() => {
+    // Fetch initial unread count
+    supabase
+      .from('alerts')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', session.user.id)
+      .is('reviewed_at', null)
+      .then(({ count }) => setUnreadAlerts(count ?? 0))
+
+    // Live updates
+    const channel = supabase
+      .channel('alerts-badge')
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'alerts',
+        filter: `user_id=eq.${session.user.id}`,
+      }, () => {
+        supabase
+          .from('alerts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .is('reviewed_at', null)
+          .then(({ count }) => setUnreadAlerts(count ?? 0))
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [session.user.id])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -55,6 +85,11 @@ export default function AppShell({ session, onLogout }: Props) {
             >
               <span className="w-4 text-center text-sm">{item.icon}</span>
               {item.label}
+              {item.id === 'alerts' && unreadAlerts > 0 && (
+                <span className="ml-auto text-[10px] bg-[#f87171] text-black font-bold px-1.5 py-0.5 rounded-full leading-none">
+                  {unreadAlerts > 99 ? '99+' : unreadAlerts}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -80,18 +115,9 @@ export default function AppShell({ session, onLogout }: Props) {
       <main className="flex-1 overflow-y-auto">
         {tab === 'dashboard' && <Dashboard session={session} />}
         {tab === 'logs'      && <LogsPage session={session} />}
-        {tab === 'alerts'    && <AlertsPlaceholder />}
+        {tab === 'alerts'    && <AlertsPage session={session} />}
         {tab === 'profile'   && <ProfilePanel session={session} onLogout={handleLogout} />}
       </main>
-    </div>
-  )
-}
-
-function AlertsPlaceholder() {
-  return (
-    <div className="flex items-center justify-center h-full min-h-[60vh] flex-col gap-3">
-      <div className="text-3xl">🔔</div>
-      <div className="text-[#555] text-sm">Alert settings — coming soon</div>
     </div>
   )
 }
