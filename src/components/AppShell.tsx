@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import Dashboard from './Dashboard'
+import LogsPage from './LogsPage'
 import ProfilePanel from './ProfilePanel'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -78,19 +79,10 @@ export default function AppShell({ session, onLogout }: Props) {
       {/* CONTENT */}
       <main className="flex-1 overflow-y-auto">
         {tab === 'dashboard' && <Dashboard session={session} />}
-        {tab === 'logs'      && <LogsPlaceholder />}
+        {tab === 'logs'      && <LogsPage session={session} />}
         {tab === 'alerts'    && <AlertsPlaceholder />}
         {tab === 'profile'   && <ProfilePanel session={session} onLogout={handleLogout} />}
       </main>
-    </div>
-  )
-}
-
-function LogsPlaceholder() {
-  return (
-    <div className="flex items-center justify-center h-full min-h-[60vh] flex-col gap-3">
-      <div className="text-3xl">📋</div>
-      <div className="text-[#555] text-sm">Full logs view — coming soon</div>
     </div>
   )
 }

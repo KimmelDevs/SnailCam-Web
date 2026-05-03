@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import Image from 'next/image'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabaseClient'
@@ -62,7 +62,6 @@ export default function Dashboard({ session }: Props) {
   const today = new Date().toDateString()
   const todayCount   = detections.filter(d => new Date(d.captured_at).toDateString() === today).length
   const withEggs     = detections.filter(d => d.egg_cluster_count > 0).length
-  const avgConf      = 0 // confidence not stored in this schema
   const lastDetected = detections[0] ? formatRelative(detections[0].captured_at) : '—'
 
   return (
@@ -152,9 +151,8 @@ export default function Dashboard({ session }: Props) {
             </thead>
             <tbody>
               {filtered.map((det) => (
-                <>
+                <Fragment key={det.id}>
                   <tr
-                    key={det.id}
                     className="border-b border-[#111] hover:bg-[#111] transition-colors cursor-pointer"
                     onClick={() => setExpandedId(expandedId === det.id ? null : det.id)}
                   >
@@ -195,8 +193,6 @@ export default function Dashboard({ session }: Props) {
                             <div className="text-xs text-[#555]"><span className="text-[#333]">Event ID:</span> <span className="font-mono">{det.event_id}</span></div>
                             <div className="text-xs text-[#555]"><span className="text-[#333]">Captured:</span> {formatTimestamp(det.captured_at)}</div>
                             <div className="text-xs text-[#555]"><span className="text-[#333]">Egg clusters:</span> {det.egg_cluster_count}</div>
-                            {det.confidence != null && <div className="text-xs text-[#555]"><span className="text-[#333]">Confidence:</span> {det.confidence}%</div>}
-                            {det.camera_label && <div className="text-xs text-[#555]"><span className="text-[#333]">Camera:</span> {det.camera_label}</div>}
                             {det.photo_url && (
                               <a href={det.photo_url} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-accent-light hover:underline mt-1">
                                 View full image ↗
@@ -207,7 +203,7 @@ export default function Dashboard({ session }: Props) {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
